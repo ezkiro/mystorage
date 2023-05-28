@@ -1,5 +1,6 @@
 // Composables
-import { createRouter, createWebHistory } from "vue-router";
+import { RouteLocation, createRouter, createWebHistory } from "vue-router";
+import { isAuthorized, setRedirectedName } from "@/service/auth";
 
 const routes = [
   {
@@ -31,6 +32,18 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+//check authentication
+router.beforeEach(async (to: RouteLocation, from: RouteLocation) => {
+  if (!isAuthorized() && to.name !== "Login") {
+    console.log("require login from:" + from.fullPath);
+    setRedirectedName(to.name as string);
+    return { name: "Login" };
+  }
+
+  console.log("isAuthorized:" + isAuthorized());
+  console.log("from:" + from.fullPath);
 });
 
 export default router;
